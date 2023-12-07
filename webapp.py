@@ -4,32 +4,22 @@
 import streamlit as st #create a web app
 import numpy as np
 import pandas as pd
-from scipy.stats import zscore
 import seaborn as sns
 import matplotlib.pyplot as plt
 import hiplot as hip
 import plotly.express as px #visualize library
-import altair as alt
 from PIL import Image #upload image
 from sklearn.impute import KNNImputer
 
-import matplotlib.pyplot as plt
-from sklearn.datasets import make_regression
 from sklearn.ensemble import RandomForestRegressor, AdaBoostRegressor
-from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.neighbors import KNeighborsRegressor
 from sklearn.neural_network import MLPRegressor
-from sklearn.pipeline import make_pipeline
-from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR # Support Vector Regression, different from SVC (Support Vector Classifier)
 from sklearn.tree import DecisionTreeRegressor
-from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from sklearn.preprocessing import LabelEncoder
 from copy import copy
-
 
 
 ##################################################################################################################################################################
