@@ -137,7 +137,7 @@ sns.set_context("talk", font_scale=0.8)#define the size of font for all the plot
 
 ##################################################################################################################################################################
 #separate three parts
-tab1, tab2, tab3, tab4, tab5, tab6, tab7= st.tabs(["Some Information", "Relationship Investigation", "AQG Investigation", "AQI", "Analysis", "TSA Prediction", "Feature Selection Prediction"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7= st.tabs(["Information of the dataset", "Relationship Investigation", "AQG Investigation", "AQI", "Analysis", "TSA Prediction", "Feature Selection Prediction"])
 
 
 ##################################################################################################################################################################
@@ -151,28 +151,36 @@ with tab1:
     st.markdown('<p class="font_text">SO2 (Sulfur Dioxide): Mainly produced from burning fossil fuels containing sulfur and from volcanic eruptions, SO2 is a gas that can affect the human respiratory system and make breathing difficult. It also contributes to the formation of acid rain.</p>', unsafe_allow_html=True)
     st.markdown('<p class="font_text">CO (Carbon Monoxide): This colorless, odorless gas is a product of incomplete combustion. High levels of CO in the air are especially dangerous because they can prevent oxygen from entering the cells and tissues.</p>', unsafe_allow_html=True)
     
-    
+    col1,col2,col3=st.columns(3,gap='small')
+    show_nan = col1.checkbox('Show NaN distribution of the dataset')
+    show_stati = col2.checkbox('Show statistical properties of the dataset')
+    show_corr = col3.checkbox('Show correlation of the dataset')
+
     #Heatmap: see the NaN distribution
-    plt.figure(figsize=(10, 4))
-    sns.heatmap(site_data.isna().transpose(), cmap="magma")
-    st.pyplot(plt)
-    st.markdown('<p class="font_subtext1">Fig.1 The NaN distribution of the dataset</p>', unsafe_allow_html=True)
+    if show_nan==True:
+        plt.figure(figsize=(10, 4))
+        sns.heatmap(site_data.isna().transpose(), cmap="magma")
+        st.pyplot(plt)
+        st.markdown('<p class="font_subtext1">Fig.1 The NaN distribution of the dataset</p>', unsafe_allow_html=True)
+
+  
+    #descriptive statistics
+    if show_stati==True:
+        df_statistics = site_data.describe()
+        st.markdown('<p class="font_subsubtext1">Table 1. The descriptive statistics of the dataset </p>', unsafe_allow_html=True)
+        st.write(df_statistics, height=800)
+    
+
+    #Heatmap: correlation
+    if show_corr==True:
+        correlation_matrix = site_data.corr(method='pearson')
+        plt.figure(figsize=(22, 15))
+        sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
+        st.pyplot(plt)
+        st.markdown('<p class="font_subtext1">Fig.2 Correlation diagram of the dataset</p>', unsafe_allow_html=True)
 
     st.markdown('<p class="font_text">Observations from Figure 1 and Table 1 reveal the presence of missing values within our dataset. To address this, we will employ a method that utilizes the "n nearest neighbors" technique for imputing these missing values. This approach will allow us to maintain the integrity and continuity of our dataset, ensuring a more robust and accurate analysis.</p>', unsafe_allow_html=True)
     st.markdown('<p class="font_text"></p>', unsafe_allow_html=True)
-
-    #descriptive statistics
-    df_statistics = site_data.describe()
-    st.markdown('<p class="font_subsubtext1">Table 1. The descriptive statistics of the dataset </p>', unsafe_allow_html=True)
-    st.write(df_statistics, height=800)
-
-    #Heatmap: correlation
-    correlation_matrix = site_data.corr(method='pearson')
-    plt.figure(figsize=(22, 15))
-    sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm', linewidths=0.5)
-    st.pyplot(plt)
-    st.markdown('<p class="font_subtext1">Fig.2 Correlation diagram of the dataset</p>', unsafe_allow_html=True)
-
     ####################################################################################################################################################################
 
     st.markdown('<p class="font_header">Reference </p>', unsafe_allow_html=True)
@@ -463,29 +471,33 @@ with tab5:
     st.markdown('<p class="font_text">O3: Unlike the other pollutants, ozone has its peak during the daytime, especially in the summer, which is consistent with the photochemical generation of ozone from precursor emissions (like NOx and VOCs) in the presence of sunlight. Lower levels in winter could be due to the reduced intensity of sunlight and shorter days. </p>', unsafe_allow_html=True)
 
     # 2. Monthly analysis
-    plt.figure(figsize=(8, 8))
-    monthly_avg_filtered = monthly_avg['2014':'2016']# Filter the DataFrame for the years 2013 to 2016
-    grouped = monthly_avg_filtered.groupby(monthly_avg_filtered.index.month)# Group the data by year
+    # col1,col2,col3=st.columns(3,gap='small')
+    show_monthly_analysis = st.checkbox('Show average monthly concentration of pollutants with varying month')
+    
+    if show_monthly_analysis==True:
+        plt.figure(figsize=(8, 8))
+        monthly_avg_filtered = monthly_avg['2014':'2016']# Filter the DataFrame for the years 2013 to 2016
+        grouped = monthly_avg_filtered.groupby(monthly_avg_filtered.index.month)# Group the data by year
 
-    fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(12, 12), constrained_layout=True)
-    axes = axes.flatten()# Flatten the axes array for easy iteration
-    month = np.arange(len(monthly_avg_filtered['PM2.5']))
+        fig, axes = plt.subplots(nrows=3, ncols=2, figsize=(12, 12), constrained_layout=True)
+        axes = axes.flatten()# Flatten the axes array for easy iteration
+        month = np.arange(len(monthly_avg_filtered['PM2.5']))
 
-    # Plot each pollutant in its own subplot
-    for i, pollutant in enumerate(pollutants):
-        axes[i].plot(month, monthly_avg_filtered[pollutant], color='g')
-        axes[i].scatter(month, monthly_avg_filtered[pollutant], color='g')
-        axes[i].set_title(f'Monthly Average of {pollutant}')
-        axes[i].set_xlabel('Months')
-        axes[i].set_ylabel('Concentration')
-        axes[i].grid(True)
-        axes[i].set_xticklabels(axes[i].get_xticklabels()) #Rotate x-axis tick labels to vertical
-    plt.tight_layout()
-    st.pyplot(plt)
-    st.markdown('<p class="font_subtext1">Fig.7 The average monthly concentration of pollutants with varying month start from Janurary in 2014-2016.</p>', unsafe_allow_html=True)
+        # Plot each pollutant in its own subplot
+        for i, pollutant in enumerate(pollutants):
+            axes[i].plot(month, monthly_avg_filtered[pollutant], color='g')
+            axes[i].scatter(month, monthly_avg_filtered[pollutant], color='g')
+            axes[i].set_title(f'Monthly Average of {pollutant}')
+            axes[i].set_xlabel('Months')
+            axes[i].set_ylabel('Concentration')
+            axes[i].grid(True)
+            axes[i].set_xticklabels(axes[i].get_xticklabels()) #Rotate x-axis tick labels to vertical
+        plt.tight_layout()
+        st.pyplot(plt)
+        st.markdown('<p class="font_subtext1">Fig.7 The average monthly concentration of pollutants with varying month start from Janurary in 2014-2016.</p>', unsafe_allow_html=True)
 
-    st.markdown('<p class="font_text">The most summary get from the fig.6 can be observed from fig.7, too. Fig.7 illustrates the average monthly concentrations of key pollutants over the months, beginning from January 2014 through to the end of 2016. This graph provides a visual representation of the fluctuating levels of various air contaminants and helps to identify seasonal trends and potential anomalies within this three-year span.</p>', unsafe_allow_html=True)
- 
+        st.markdown('<p class="font_text">The most summary get from the fig.6 can be observed from fig.7, too. Fig.7 illustrates the average monthly concentrations of key pollutants over the months, beginning from January 2014 through to the end of 2016. This graph provides a visual representation of the fluctuating levels of various air contaminants and helps to identify seasonal trends and potential anomalies within this three-year span.</p>', unsafe_allow_html=True)
+     
     
     ####################################################################################################################################################################
 
@@ -500,73 +512,73 @@ with tab5:
 
 
 ##################################################################################################################################################################
-# ##Time Series Analysis
-# with tab6:
-#     st.markdown('<p class="font_text">The air quality data is related to environmental measurements over a period of time. This kind of data is often used in time series analysis(TSA) to forecast future values based on historical trends and patterns. Here, we use the one-step-ahead-forecasting. In time series analysis, it refers to the prediction of a future value in the series at a specific number of time steps ahead from the current point. </p>', unsafe_allow_html=True)
+##Time Series Analysis
+with tab6:
+    st.markdown('<p class="font_text">The air quality data is related to environmental measurements over a period of time. This kind of data is often used in time series analysis(TSA) to forecast future values based on historical trends and patterns. Here, we use the one-step-ahead-forecasting. In time series analysis, it refers to the prediction of a future value in the series at a specific number of time steps ahead from the current point. </p>', unsafe_allow_html=True)
 
-#     pollutants_tuple = ('PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3')
-#     default_pollutant_index = pollutants_tuple.index('SO2')
-#     pollutant = st.selectbox('Select a pollutant:', pollutants_tuple, index=default_pollutant_index)
+    pollutants_tuple = ('PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3')
+    default_pollutant_index = pollutants_tuple.index('SO2')
+    pollutant = st.selectbox('Select a pollutant:', pollutants_tuple, index=default_pollutant_index)
 
-#     fig, ax = plt.subplots(1, 1, figsize = (15,4))
-#     sns.scatterplot(data=daily_avg, x="datetime", y=pollutant, label="The whole actual data", ax=ax)
+    fig, ax = plt.subplots(1, 1, figsize = (15,4))
+    sns.scatterplot(data=daily_avg, x="datetime", y=pollutant, label="The whole actual data", ax=ax)
 
-#     # Setting the title and labels
-#     _ = ax.set(xlabel="Date", ylabel=f"{pollutant} concentration")
+    # Setting the title and labels
+    _ = ax.set(xlabel="Date", ylabel=f"{pollutant} concentration")
     
-#     st.pyplot(fig)
-#     st.markdown('<p class="font_subtext1">Fig.8 The daily average pollutant concentration with date.</p>', unsafe_allow_html=True)
+    st.pyplot(fig)
+    st.markdown('<p class="font_subtext1">Fig.8 The daily average pollutant concentration with date.</p>', unsafe_allow_html=True)
 
 
-#     #N-Step-Ahead-Forecasting
-#     total_number = len(daily_avg[pollutant])
-#     step_size = max(int(total_number / 200), 1)  # Ensure step size is at least 1
-#     temps = daily_avg[pollutant][::step_size].to_numpy()
-#     chosen_sample_number = len(temps)
-#     st.write('We choose', chosen_sample_number, 'data from', total_number, 'actual daily average data to do the daily prediction.')
-#     full_temps = copy(temps)
-#     temps=temps[0:170]
+    #N-Step-Ahead-Forecasting
+    total_number = len(daily_avg[pollutant])
+    step_size = max(int(total_number / 200), 1)  # Ensure step size is at least 1
+    temps = daily_avg[pollutant][::step_size].to_numpy()
+    chosen_sample_number = len(temps)
+    st.write('We choose', chosen_sample_number, 'data from', total_number, 'actual daily average data to do the daily prediction.')
+    full_temps = copy(temps)
+    temps=temps[0:170]
 
-#     def organize_dataset(signal, N=1):
-#         X, y = [], []
-#         for i in range(len(signal) - N):
-#             a = signal[i:(i + N)]
-#             X.append(a)
-#             y.append(signal[i + N])
-#         return np.array(X), np.array(y)
+    def organize_dataset(signal, N=1):
+        X, y = [], []
+        for i in range(len(signal) - N):
+            a = signal[i:(i + N)]
+            X.append(a)
+            y.append(signal[i + N])
+        return np.array(X), np.array(y)
 
-#     def predict_next_value(input_vector, a):
-#         return np.dot(input_vector, a)
+    def predict_next_value(input_vector, a):
+        return np.dot(input_vector, a)
 
-#     N = st.slider('Input the number of the first data points', 1, 100, 50)#The default value is the last number
+    N = st.slider('Input the number of the first data points', 1, 100, 50)#The default value is the last number
     
-#     X, y = organize_dataset(temps, N)
+    X, y = organize_dataset(temps, N)
 
-#     update = np.linalg.pinv(X)@y
+    update = np.linalg.pinv(X)@y
     
-#     # next value
-#     last_values = temps[-N:]
-#     next_value = predict_next_value(last_values, update)
+    # next value
+    last_values = temps[-N:]
+    next_value = predict_next_value(last_values, update)
 
-#     plt.figure(figsize=(15,5))
-#     old_signal = temps.copy()
-#     new_signal = np.append(temps, next_value)
-#     steps = 40
-#     for _ in range(steps):
-#         last_values = new_signal[-N:]
-#         next_value = predict_next_value(last_values, update)
-#         new_signal = np.append(new_signal, next_value)
+    plt.figure(figsize=(15,5))
+    old_signal = temps.copy()
+    new_signal = np.append(temps, next_value)
+    steps = 40
+    for _ in range(steps):
+        last_values = new_signal[-N:]
+        next_value = predict_next_value(last_values, update)
+        new_signal = np.append(new_signal, next_value)
 
-#     plt.title(f"Prediction vs Actual Data for A-Step-Ahead-Forecasting with N = {N}")
-#     plt.plot(temps, label='training')
-#     plt.plot(full_temps, 'o', alpha=0.4, label='truth')
-#     plt.plot(new_signal, '-^', alpha=0.4, label='forecast')
-#     plt.xlabel('time')
-#     plt.ylabel(f'{pollutant} Concentration')
-#     plt.legend()
-#     plt.grid(alpha=0.2)
+    plt.title(f"Prediction vs Actual Data for A-Step-Ahead-Forecasting with N = {N}")
+    plt.plot(temps, label='training')
+    plt.plot(full_temps, 'o', alpha=0.4, label='truth')
+    plt.plot(new_signal, '-^', alpha=0.4, label='forecast')
+    plt.xlabel('time')
+    plt.ylabel(f'{pollutant} Concentration')
+    plt.legend()
+    plt.grid(alpha=0.2)
 
-#     st.pyplot(plt)
+    st.pyplot(plt)
 
     ####################################################################################################################################################################
 
@@ -641,26 +653,49 @@ with tab7:
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test_fraction, random_state=42)
 
-    # iterate over classifiers
-    for name, clf in zip(model_names, classifiers_list):
-        clf.fit(X_train, y_train)
-        y_pred = clf.predict(X_test)
-        mse = mean_squared_error(y_test, y_pred)
-        score = clf.score(X_test, y_test)
-        st.write('Model Name:', name)
-        st.write('Model Score:', score)
-        st.write('Mean Squared Error:', mse)  
-        
-        # Plotting
-        plt.figure(figsize=(15, 6))
-        plt.scatter(X_test.index, y_test, color='blue', label='Actual Data', alpha=0.6)
-        plt.scatter(X_test.index, y_pred, color='red', label='Predicted Data', alpha=0.3)
-        plt.title(f'Prediction vs Actual Data for {name}')
-        plt.xlabel('Date')
-        plt.ylabel(f'{target_variable} Concentration')
-        plt.legend()
+    name = st.selectbox('Select the model', model_names, index=0)
+    model_index = model_names.index(name)
+    select_model = classifiers_list[model_index]
 
-        st.pyplot(plt)
+    select_model.fit(X_train, y_train)
+    y_pred = select_model.predict(X_test)
+    mse = mean_squared_error(y_test, y_pred)
+    score = select_model.score(X_test, y_test)
+    st.write('Model Name:', name)
+    st.write('Model Score:', score)
+    st.write('Mean Squared Error:', mse)  
+    
+    # Plotting
+    plt.figure(figsize=(15, 6))
+    plt.scatter(X_test.index, y_test, color='blue', label='Actual Data', alpha=0.6)
+    plt.scatter(X_test.index, y_pred, color='red', label='Predicted Data', alpha=0.3)
+    plt.title(f'Prediction vs Actual Data for {name}')
+    plt.xlabel('Date')
+    plt.ylabel(f'{target_variable} Concentration')
+    plt.legend()
+
+    st.pyplot(plt)
+
+    # # iterate over classifiers
+    # for name, clf in zip(model_names, classifiers_list):
+    #     clf.fit(X_train, y_train)
+    #     y_pred = clf.predict(X_test)
+    #     mse = mean_squared_error(y_test, y_pred)
+    #     score = clf.score(X_test, y_test)
+    #     st.write('Model Name:', name)
+    #     st.write('Model Score:', score)
+    #     st.write('Mean Squared Error:', mse)  
+        
+    #     # Plotting
+    #     plt.figure(figsize=(15, 6))
+    #     plt.scatter(X_test.index, y_test, color='blue', label='Actual Data', alpha=0.6)
+    #     plt.scatter(X_test.index, y_pred, color='red', label='Predicted Data', alpha=0.3)
+    #     plt.title(f'Prediction vs Actual Data for {name}')
+    #     plt.xlabel('Date')
+    #     plt.ylabel(f'{target_variable} Concentration')
+    #     plt.legend()
+
+    #     st.pyplot(plt)
 
     ####################################################################################################################################################################
 
