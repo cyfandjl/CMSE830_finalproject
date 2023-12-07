@@ -504,71 +504,71 @@ with tab5:
 ##################################################################################################################################################################
 ##Time Series Analysis
 with tab6:
-    st.markdown('<p class="font_text">The air quality data is related to environmental measurements over a period of time. This kind of data is often used in time series analysis(TSA) to forecast future values based on historical trends and patterns. Here, we use the one-step-ahead-forecasting. In time series analysis, it refers to the prediction of a future value in the series at a specific number of time steps ahead from the current point. </p>', unsafe_allow_html=True)
+    # st.markdown('<p class="font_text">The air quality data is related to environmental measurements over a period of time. This kind of data is often used in time series analysis(TSA) to forecast future values based on historical trends and patterns. Here, we use the one-step-ahead-forecasting. In time series analysis, it refers to the prediction of a future value in the series at a specific number of time steps ahead from the current point. </p>', unsafe_allow_html=True)
 
-    pollutants_tuple = ('PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3')
-    default_pollutant_index = pollutants_tuple.index('SO2')
-    pollutant = st.selectbox('Select a pollutant:', pollutants_tuple, index=default_pollutant_index)
+    # pollutants_tuple = ('PM2.5', 'PM10', 'SO2', 'NO2', 'CO', 'O3')
+    # default_pollutant_index = pollutants_tuple.index('SO2')
+    # pollutant = st.selectbox('Select a pollutant:', pollutants_tuple, index=default_pollutant_index)
 
-    fig, ax = plt.subplots(1, 1, figsize = (15,4))
-    sns.scatterplot(data=daily_avg, x="datetime", y=pollutant, label="The whole actual data", ax=ax)
+    # fig, ax = plt.subplots(1, 1, figsize = (15,4))
+    # sns.scatterplot(data=daily_avg, x="datetime", y=pollutant, label="The whole actual data", ax=ax)
 
-    # Setting the title and labels
-    _ = ax.set(xlabel="Date", ylabel=f"{pollutant} concentration")
+    # # Setting the title and labels
+    # _ = ax.set(xlabel="Date", ylabel=f"{pollutant} concentration")
     
-    st.pyplot(fig)
-    st.markdown('<p class="font_subtext1">Fig.8 The daily average pollutant concentration with date.</p>', unsafe_allow_html=True)
+    # st.pyplot(fig)
+    # st.markdown('<p class="font_subtext1">Fig.8 The daily average pollutant concentration with date.</p>', unsafe_allow_html=True)
 
 
-    #N-Step-Ahead-Forecasting
-    total_number = len(daily_avg[pollutant])
-    step_size = max(int(total_number / 200), 1)  # Ensure step size is at least 1
-    temps = daily_avg[pollutant][::step_size].to_numpy()
-    chosen_sample_number = len(temps)
-    st.write('We choose', chosen_sample_number, 'data from', total_number, 'actual daily average data to do the daily prediction.')
-    full_temps = copy(temps)
-    temps=temps[0:170]
+    # #N-Step-Ahead-Forecasting
+    # total_number = len(daily_avg[pollutant])
+    # step_size = max(int(total_number / 200), 1)  # Ensure step size is at least 1
+    # temps = daily_avg[pollutant][::step_size].to_numpy()
+    # chosen_sample_number = len(temps)
+    # st.write('We choose', chosen_sample_number, 'data from', total_number, 'actual daily average data to do the daily prediction.')
+    # full_temps = copy(temps)
+    # temps=temps[0:170]
 
-    def organize_dataset(signal, N=1):
-        X, y = [], []
-        for i in range(len(signal) - N):
-            a = signal[i:(i + N)]
-            X.append(a)
-            y.append(signal[i + N])
-        return np.array(X), np.array(y)
+    # def organize_dataset(signal, N=1):
+    #     X, y = [], []
+    #     for i in range(len(signal) - N):
+    #         a = signal[i:(i + N)]
+    #         X.append(a)
+    #         y.append(signal[i + N])
+    #     return np.array(X), np.array(y)
 
-    def predict_next_value(input_vector, a):
-        return np.dot(input_vector, a)
+    # def predict_next_value(input_vector, a):
+    #     return np.dot(input_vector, a)
 
-    N = st.slider('Input the number of the first data points', 1, 100, 50)#The default value is the last number
+    # N = st.slider('Input the number of the first data points', 1, 100, 50)#The default value is the last number
     
-    X, y = organize_dataset(temps, N)
+    # X, y = organize_dataset(temps, N)
 
-    update = np.linalg.pinv(X)@y
+    # update = np.linalg.pinv(X)@y
     
-    # next value
-    last_values = temps[-N:]
-    next_value = predict_next_value(last_values, update)
+    # # next value
+    # last_values = temps[-N:]
+    # next_value = predict_next_value(last_values, update)
 
-    plt.figure(figsize=(15,5))
-    old_signal = temps.copy()
-    new_signal = np.append(temps, next_value)
-    steps = 40
-    for _ in range(steps):
-        last_values = new_signal[-N:]
-        next_value = predict_next_value(last_values, update)
-        new_signal = np.append(new_signal, next_value)
+    # plt.figure(figsize=(15,5))
+    # old_signal = temps.copy()
+    # new_signal = np.append(temps, next_value)
+    # steps = 40
+    # for _ in range(steps):
+    #     last_values = new_signal[-N:]
+    #     next_value = predict_next_value(last_values, update)
+    #     new_signal = np.append(new_signal, next_value)
 
-    plt.title(f"Prediction vs Actual Data for A-Step-Ahead-Forecasting with N = {N}")
-    plt.plot(temps, label='training')
-    plt.plot(full_temps, 'o', alpha=0.4, label='truth')
-    plt.plot(new_signal, '-^', alpha=0.4, label='forecast')
-    plt.xlabel('time')
-    plt.ylabel(f'{pollutant} Concentration')
-    plt.legend()
-    plt.grid(alpha=0.2)
+    # plt.title(f"Prediction vs Actual Data for A-Step-Ahead-Forecasting with N = {N}")
+    # plt.plot(temps, label='training')
+    # plt.plot(full_temps, 'o', alpha=0.4, label='truth')
+    # plt.plot(new_signal, '-^', alpha=0.4, label='forecast')
+    # plt.xlabel('time')
+    # plt.ylabel(f'{pollutant} Concentration')
+    # plt.legend()
+    # plt.grid(alpha=0.2)
 
-    st.pyplot(plt)
+    # st.pyplot(plt)
 
     ####################################################################################################################################################################
 
