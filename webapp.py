@@ -69,7 +69,8 @@ st.markdown('<p class="font_title">An Analysis and prediction to Beijing Air-Qua
 
 #upload a picture
 image = Image.open('sandstorm_BJ.png')
-st.image(image, use_column_width=True)#make the image take up the full column width
+st.image(image)
+# st.image(image, use_column_width=True)#make the image take up the full column width
 
 st.markdown('<p class="font_subtext2">Image credit: https://www.cnn.com/2023/04/11/asia/china-sandstorm-hits-beijing-intl-hnk/index.html</p>', unsafe_allow_html=True) #add empty space
 
@@ -127,7 +128,7 @@ sns.set_context("talk", font_scale=0.8)#define the size of font for all the plot
 
 ##################################################################################################################################################################
 #separate three parts
-tab1, tab2, tab3, tab4, tab5, tab6, tab7= st.tabs(["Information of the dataset", "Relationship Investigation", "AQG Investigation", "AQI", "Analysis", "TSA Prediction", "Feature Selection Prediction"])
+tab1, tab2, tab3, tab4, tab5, tab6, tab7, tab8 = st.tabs(["Information of the dataset", "Relationship Investigation", "AQG Investigation", "AQI", "Analysis", "TSA Prediction", "Feature Selection Prediction", "About me"])
 
 
 ##################################################################################################################################################################
@@ -196,7 +197,6 @@ site_data = site_data.join(imputed_site_data)
 ##################################################################################################################################################################
 ##Investigate the relationship of any two variables 
 with tab2:
-    st.markdown('<p class="font_subheader">Regplot: </p>', unsafe_allow_html=True)
     data_year = st.selectbox('Select the year:',(2014, 2015, 2016), index=0)
 
     site_data_yearly = site_data[site_data['year']==data_year]#only choose the data in 2016
@@ -522,12 +522,12 @@ with tab6:
 
     #N-Step-Ahead-Forecasting
     total_number = len(daily_avg[pollutant])
-    step_size = max(int(total_number / 100), 1)  # Ensure step size is at least 1
+    step_size = max(int(total_number / 200), 1)  # Ensure step size is at least 1
     temps = daily_avg[pollutant][::step_size].to_numpy()
     chosen_sample_number = len(temps)
     st.write('We choose', chosen_sample_number, 'data from', total_number, 'actual daily average data to do the daily prediction.')
     full_temps = copy(temps)
-    temps=temps[0:80]
+    temps=temps[0:170]
 
     def organize_dataset(signal, N=1):
         X, y = [], []
@@ -553,7 +553,7 @@ with tab6:
     plt.figure(figsize=(15,5))
     old_signal = temps.copy()
     new_signal = np.append(temps, next_value)
-    steps = 30
+    steps = 40
     for _ in range(steps):
         last_values = new_signal[-N:]
         next_value = predict_next_value(last_values, update)
@@ -596,6 +596,7 @@ with tab7:
     # data_name = st.selectbox('Select a data you are interested', data_names, index=default_index)
     # data_index = data_names.index(data_name)
     # target_data = data_list[data_index]
+    
     target_data = daily_avg
 
     # Create a slider widget for test_fraction
@@ -696,3 +697,25 @@ with tab7:
     st.markdown('<p class="font_text1">[4] https://github.com/Afkerian/Beijing-Multi-Site-Air-Quality-Data-Data-Set/blob/main/notebooks/analyticis.ipynb.', unsafe_allow_html=True)
 
     ##################################################################################################################################################################
+
+    with tab8:
+        col1, col2 = st.columns(2)
+        
+        with col1: 
+            image = Image.open('self.png')
+            st.image(image, width=300)
+        
+        with col2: 
+            st.write(""" 
+                #### Lan Jin: 
+                PhD Candidate(second year), Electrical and Computer Engineering
+
+                Michigan State University
+
+                #### Research Interests: 
+                Photoemission, Field emission, Material Properties under Electric and Laser Fields, Plasma.
+
+                #### Hobbies: 
+                Music, Hiking, Travel, Gardening, Console gaming. 
+
+                    """)
